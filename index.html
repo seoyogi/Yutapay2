@@ -1453,7 +1453,7 @@
         document.querySelectorAll('.nav-item').forEach((el, idx) => {
             el.classList.toggle('active', idx === i);
         });
-        if(i === 3) openCamera('charge');
+        // チャージはnavからは開かない
     }
 
     function goSheet(id) {
