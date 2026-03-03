@@ -1,0 +1,2147 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>yutashoppay</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <style>
+        :root {
+            --pp-red: #FF0033;
+            --pp-red-dark: #cc0028;
+            --pp-red-light: #ff4466;
+            --pp-bg: #f5f5f5;
+            --pp-white: #ffffff;
+            --pp-text: #1a1a1a;
+            --pp-sub: #888;
+            --pp-border: #e8e8e8;
+            --pp-gold: #F5A623;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, 'Helvetica Neue', sans-serif; background: var(--pp-bg); color: var(--pp-text); overflow-x: hidden; }
+        
+        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; padding-bottom: 90px; position: relative; }
+
+        .header {
+            background: linear-gradient(160deg, #ff3355 0%, #FF0033 50%, #cc0028 100%);
+            padding: 52px 20px 100px;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 200px; height: 200px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 50%;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -40px; left: -20px;
+            width: 160px; height: 160px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .logo-icon {
+            width: 34px; height: 34px;
+            background: white;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--pp-red);
+        }
+        .logo-text {
+            color: white;
+            font-weight: 900;
+            font-size: 20px;
+            letter-spacing: -0.5px;
+        }
+        .header-icons {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+        .header-icon-btn {
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            position: relative;
+        }
+        .notif-badge {
+            position: absolute;
+            top: -4px; right: -4px;
+            width: 8px; height: 8px;
+            background: var(--pp-gold);
+            border-radius: 50%;
+        }
+
+        .card-wrap { padding: 0 14px; margin-top: -80px; position: relative; z-index: 10; }
+        
+        .pay-card {
+            background: white;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 14px;
+            animation: cardIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        @keyframes cardIn {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px 10px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .card-pay-label {
+            font-size: 12px;
+            color: var(--pp-sub);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .card-settings { font-size: 22px; color: #ccc; cursor: pointer; }
+
+        .barcode-section { padding: 12px 20px 10px; }
+        .barcode-bar {
+            height: 56px;
+            background: repeating-linear-gradient(
+                90deg,
+                #000 0px, #000 2px, transparent 2px, transparent 3px,
+                #000 3px, #000 5px, transparent 5px, transparent 7px,
+                #000 7px, #000 8px, transparent 8px, transparent 10px,
+                #000 10px, #000 14px, transparent 14px, transparent 16px,
+                #000 16px, #000 17px, transparent 17px, transparent 20px
+            );
+            border-radius: 2px;
+        }
+
+        .qr-section {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            gap: 14px;
+        }
+        .qr-wrap {
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .qr-img { width: 90px; height: 90px; border-radius: 8px; display: block; }
+        .qr-wave {
+            position: absolute;
+            bottom: -4px; right: -4px;
+            width: 22px; height: 22px;
+            background: var(--pp-red);
+            border-radius: 50%;
+            animation: wavePulse 1.8s ease-in-out infinite;
+        }
+        @keyframes wavePulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.5; }
+        }
+
+        .card-right { flex: 1; }
+        .app-name-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border: 1.5px solid var(--pp-red);
+            border-radius: 20px;
+            margin-bottom: 8px;
+        }
+        .app-name-badge .pp-logo { color: var(--pp-red); font-weight: 900; font-size: 13px; }
+        .app-name-badge span { font-size: 11px; color: var(--pp-red); font-weight: 700; }
+        .pay-source-text { font-size: 11px; color: var(--pp-sub); margin-bottom: 10px; }
+        
+        .balance-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 10px 12px;
+            background: #fafafa;
+            border-radius: 12px;
+            border: 1px solid var(--pp-border);
+        }
+        .balance-label { font-size: 11px; color: var(--pp-sub); }
+        .balance-amount { font-size: 22px; font-weight: 900; color: var(--pp-text); letter-spacing: -0.5px; }
+        .balance-yen { font-size: 14px; font-weight: 700; color: var(--pp-text); }
+        .balance-arrow { font-size: 14px; color: #ccc; margin-left: auto; }
+        .points-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: linear-gradient(90deg, #fff8ee, #fff3e0);
+            border-radius: 12px;
+            border: 1px solid #ffe0b2;
+            margin-top: 8px;
+        }
+        .points-label { font-size: 11px; color: #e65100; font-weight: 700; }
+        .points-amount { font-size: 18px; font-weight: 900; color: #e65100; letter-spacing: -0.5px; }
+        .points-unit { font-size: 11px; color: #e65100; font-weight: 700; }
+        .points-arrow { font-size: 14px; color: #ffb74d; margin-left: auto; }
+
+        .action-bar {
+            background: white;
+            border-radius: 18px;
+            padding: 16px 8px 12px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            margin-bottom: 14px;
+            animation: cardIn 0.5s 0.1s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        .action-item {
+            text-align: center;
+            cursor: pointer;
+            padding: 4px 0;
+            transition: transform 0.15s;
+            position: relative;
+        }
+        .action-item:active { transform: scale(0.92); }
+        .action-icon-wrap {
+            width: 50px; height: 50px;
+            margin: 0 auto 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            position: relative;
+        }
+        .action-circle {
+            position: absolute;
+            width: 100%; height: 100%;
+            background: #f8f8f8;
+            border-radius: 50%;
+            border: 1px solid var(--pp-border);
+        }
+        .action-emoji { position: relative; z-index: 1; }
+        .action-label { font-size: 10px; font-weight: 700; color: var(--pp-text); line-height: 1.2; }
+
+        .festival-badge {
+            position: absolute;
+            top: -10px; right: -6px;
+            background: linear-gradient(135deg, var(--pp-gold), #e5911b);
+            color: white;
+            font-size: 8px;
+            font-weight: 900;
+            padding: 3px 7px;
+            border-radius: 10px;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            z-index: 2;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 18px;
+            margin: 0 0 14px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            animation: cardIn 0.5s 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        .func-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            padding: 18px 8px 16px;
+            gap: 18px 0;
+        }
+        .func-item {
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.15s;
+            position: relative;
+        }
+        .func-item:active { transform: scale(0.9); }
+        .func-icon-wrap {
+            width: 50px; height: 50px;
+            margin: 0 auto 6px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 14px;
+            font-size: 26px;
+            background: #f8f8f8;
+        }
+        .func-icon-wrap.red { background: #fff0f3; }
+        .func-icon-wrap.blue { background: #f0f4ff; }
+        .func-icon-wrap.green { background: #f0fff4; }
+        .func-icon-wrap.orange { background: #fff8f0; }
+        .func-icon-wrap.img {
+            background: none;
+            overflow: hidden;
+            border-radius: 14px;
+        }
+        .func-icon-wrap.img img { width: 100%; height: 100%; object-fit: cover; }
+        .func-label { font-size: 10px; font-weight: 700; color: var(--pp-text); line-height: 1.3; }
+        .func-badge {
+            position: absolute;
+            top: -4px; right: 14px;
+            background: var(--pp-red);
+            color: white;
+            font-size: 9px;
+            font-weight: 900;
+            padding: 2px 5px;
+            border-radius: 10px;
+        }
+        .func-badge.gold { background: var(--pp-gold); }
+
+        .grid-divider { height: 1px; background: var(--pp-border); margin: 0 16px; }
+        
+        .func-more-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 0 16px;
+            gap: 20px;
+        }
+        .func-more-item {
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            width: 60px;
+        }
+        .func-more-item .func-icon-wrap { width: 50px; height: 50px; }
+
+        .campaign-strip {
+            background: linear-gradient(90deg, var(--pp-red) 0%, #ff6680 100%);
+            border-radius: 14px;
+            padding: 12px 16px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            cursor: pointer;
+        }
+        .campaign-left { flex: 1; }
+        .campaign-tag { font-size: 10px; font-weight: 800; opacity: 0.9; margin-bottom: 2px; letter-spacing: 0.5px; }
+        .campaign-title { font-size: 14px; font-weight: 900; }
+        .campaign-right { font-size: 32px; }
+
+        .news-header { font-size: 15px; font-weight: 800; padding: 0 0 10px; color: var(--pp-text); }
+        .banner-card {
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+        .banner-inner {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            gap: 14px;
+        }
+        .banner-img-wrap {
+            width: 56px; height: 56px;
+            border-radius: 12px;
+            overflow: hidden;
+            flex-shrink: 0;
+            font-size: 36px;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #ffecb3, #ffe082);
+        }
+        .banner-texts { flex: 1; }
+        .banner-title { font-size: 13px; font-weight: 800; margin-bottom: 3px; }
+        .banner-sub { font-size: 11px; color: var(--pp-sub); line-height: 1.4; }
+        .banner-arrow { color: #ccc; font-size: 18px; }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%; transform: translateX(-50%);
+            width: 100%; max-width: 430px;
+            height: 80px;
+            background: white;
+            display: flex;
+            align-items: center;
+            z-index: 200;
+            border-top: 1px solid var(--pp-border);
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+        }
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            cursor: pointer;
+            padding-bottom: 8px;
+            color: #bbb;
+            transition: color 0.2s;
+        }
+        .nav-item.active { color: var(--pp-red); }
+        .nav-item svg { width: 24px; height: 24px; }
+        .nav-label { font-size: 10px; font-weight: 700; }
+        .nav-pay-btn {
+            width: 72px; height: 72px;
+            flex-shrink: 0;
+            margin-top: -36px;
+            cursor: pointer;
+        }
+        .nav-pay-inner {
+            background: linear-gradient(145deg, var(--pp-red-light), var(--pp-red));
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid white;
+            box-shadow: 0 4px 20px rgba(255,0,51,0.5), 0 0 0 1px rgba(255,0,51,0.2);
+            animation: payPulse 2s ease-in-out infinite;
+            transition: transform 0.15s;
+        }
+        .nav-pay-inner:active { transform: scale(0.92); }
+        @keyframes payPulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(255,0,51,0.5), 0 0 0 1px rgba(255,0,51,0.2); }
+            50% { box-shadow: 0 4px 28px rgba(255,0,51,0.7), 0 0 0 6px rgba(255,0,51,0.1); }
+        }
+        .nav-pay-icon { font-size: 20px; }
+        .nav-pay-label { font-size: 10px; font-weight: 900; color: white; }
+
+        #camera_screen {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 2000; display: none;
+            background: #000;
+        }
+        #video { width: 100%; height: 100%; object-fit: cover; }
+        .scan-header {
+            position: absolute; top: 0; left: 0; right: 0;
+            padding: 50px 20px 20px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+            z-index: 2100;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .scan-back { color: white; font-size: 28px; cursor: pointer; }
+        .scan-title { color: white; font-size: 16px; font-weight: 700; }
+        .scan-frame-outer {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -55%);
+            width: 260px; height: 260px;
+            z-index: 2060; pointer-events: none;
+        }
+        .scan-corner {
+            position: absolute;
+            width: 30px; height: 30px;
+            border-color: white;
+            border-style: solid;
+            border-width: 0;
+        }
+        .scan-corner.tl { top: 0; left: 0; border-top-width: 4px; border-left-width: 4px; border-radius: 6px 0 0 0; }
+        .scan-corner.tr { top: 0; right: 0; border-top-width: 4px; border-right-width: 4px; border-radius: 0 6px 0 0; }
+        .scan-corner.bl { bottom: 0; left: 0; border-bottom-width: 4px; border-left-width: 4px; border-radius: 0 0 0 6px; }
+        .scan-corner.br { bottom: 0; right: 0; border-bottom-width: 4px; border-right-width: 4px; border-radius: 0 0 6px 0; }
+        .scan-laser {
+            position: absolute;
+            left: calc(50% - 120px);
+            width: 240px; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--pp-red), transparent);
+            z-index: 2065;
+            animation: laserMove 2s ease-in-out infinite;
+        }
+        @keyframes laserMove {
+            0% { top: calc(50% - 120px); }
+            50% { top: calc(50% + 110px); }
+            100% { top: calc(50% - 120px); }
+        }
+        .scan-tip { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); color: white; font-size: 12px; text-align: center; z-index: 2100; width: 200px; opacity: 0.7; }
+        #canvas { display: none; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 500; display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-sheet {
+            background: white;
+            width: 100%; max-width: 430px;
+            border-radius: 24px 24px 0 0;
+            padding: 12px 24px 40px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: sheetUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        @keyframes sheetUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .sheet-handle {
+            width: 40px; height: 4px;
+            background: #ddd;
+            border-radius: 4px;
+            margin: 0 auto 20px;
+        }
+        .sheet-title { font-size: 18px; font-weight: 900; margin-bottom: 20px; text-align: center; }
+        
+        .modal-fullpage {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: white;
+            z-index: 600;
+            display: none;
+            overflow-y: auto;
+        }
+        .modal-fullpage.active { display: block; }
+        .modal-nav {
+            display: flex;
+            align-items: center;
+            padding: 52px 20px 16px;
+            gap: 12px;
+            border-bottom: 1px solid var(--pp-border);
+            position: sticky; top: 0;
+            background: white; z-index: 10;
+        }
+        .modal-back {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: #f5f5f5;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; cursor: pointer;
+        }
+        .modal-title { font-size: 17px; font-weight: 800; }
+        .modal-body { padding: 24px 20px; }
+
+        .input-group { margin-bottom: 16px; }
+        .input-label { font-size: 12px; color: var(--pp-sub); font-weight: 700; margin-bottom: 6px; }
+        .pp-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--pp-border);
+            border-radius: 14px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+            background: #fafafa;
+            -webkit-appearance: none;
+        }
+        .pp-input:focus { border-color: var(--pp-red); background: white; }
+        
+        .pp-btn {
+            background: var(--pp-red);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 18px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform 0.15s, background 0.2s;
+            letter-spacing: 0.5px;
+            display: block;
+        }
+        .pp-btn:active { transform: scale(0.97); background: var(--pp-red-dark); }
+        .pp-btn.secondary { background: #f0f0f0; color: var(--pp-text); margin-top: 10px; }
+        .pp-btn.dark { background: #333; margin-top: 10px; }
+
+        .fullpay-screen { text-align: center; }
+        .fullpay-screen .barcode-bar { height: 80px; margin: 0 0 20px; border-radius: 4px; }
+        .fullpay-screen .qr-big { width: 220px; height: 220px; margin: 0 auto 20px; border-radius: 16px; }
+        .fullpay-balance { font-size: 28px; font-weight: 900; margin-top: 10px; }
+
+        #complete_screen {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: white;
+            z-index: 1000; display: none;
+            align-items: center; justify-content: center;
+            flex-direction: column;
+            text-align: center;
+        }
+        #complete_screen.active { display: flex; }
+        .complete-circle {
+            width: 110px; height: 110px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00c851, #007e33);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 54px;
+            margin-bottom: 24px;
+            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 32px rgba(0,200,81,0.4);
+        }
+        .complete-circle.receive { background: linear-gradient(135deg, #ff6b00, #ff8f00); box-shadow: 0 8px 32px rgba(255,107,0,0.4); }
+        @keyframes popIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+        .complete-title { font-size: 22px; font-weight: 900; margin-bottom: 8px; }
+        .complete-amount { font-size: 42px; font-weight: 900; letter-spacing: -1px; margin-bottom: 6px; }
+        .complete-store { font-size: 14px; color: var(--pp-sub); margin-bottom: 32px; }
+        .complete-tag { font-size: 16px; color: var(--pp-red); font-weight: 900; }
+        
+        .staff-badge { background: #333; color: white; font-size: 10px; padding: 3px 8px; border-radius: 10px; display: inline-block; margin-bottom: 12px; }
+
+        .tx-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--pp-border);
+        }
+        .tx-icon {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .tx-icon.pay-icon { background: #fff0f0; }
+        .tx-icon.rcv-icon { background: #f0fff4; }
+        .tx-info { flex: 1; }
+        .tx-store { font-size: 14px; font-weight: 700; }
+        .tx-date { font-size: 11px; color: var(--pp-sub); }
+        .tx-amount { font-weight: 900; font-size: 16px; }
+        .tx-amount.rcv { color: #00c851; }
+
+        .section-padding { padding: 0 14px; }
+        .quick-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+    <div id="home_screen">
+        <div class="header">
+            <div class="header-top">
+                <div class="logo">
+                    <div class="logo-icon">Y</div>
+                    <span class="logo-text">yutashoppay</span>
+                </div>
+                <div class="header-icons">
+                    <div class="header-icon-btn" onclick="goFullPage('history_screen')">📋</div>
+                    <div class="header-icon-btn" style="position:relative;" onclick="goFullPage('notif_screen')">
+                        🔔
+                        <div class="notif-badge" id="notif-dot"></div>
+                        <div class="notif-badge-count" id="notif-count"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-wrap">
+            <div class="pay-card">
+                <div class="card-header">
+                    <div class="card-pay-label">
+                        💳 yutashoppay残高からの支払い ▾
+                    </div>
+                    <div class="card-settings">···</div>
+                </div>
+                <div class="barcode-section">
+                    <div class="barcode-bar"></div>
+                </div>
+                <div class="qr-section">
+                    <div class="qr-wrap" id="qr_home_wrap">
+                        <img id="qr_home" class="qr-img"
+                            src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=yuta_exclusive&color=000000&bgcolor=ffffff">
+                        <div class="qr-wave"></div>
+                    </div>
+                    <div class="card-right">
+                        <div class="app-name-badge">
+                            <span class="pp-logo">Y</span>
+                            <span>yutashoppay</span>
+                        </div>
+                        <div class="pay-source-text">残高からお支払い</div>
+                        <div class="balance-row" onclick="goFullPage('fullpay_screen')">
+                            <span class="balance-label">残高</span>
+                            <span class="balance-yen">¥</span>
+                            <span class="balance-amount current-balance">10,000</span>
+                            <span class="balance-arrow">›</span>
+                        </div>
+                        <div class="points-row" onclick="goSheet('points_sheet')">
+                            <span style="font-size:14px;">⭐</span>
+                            <span class="points-label">ポイント</span>
+                            <span class="points-amount current-points">0</span>
+                            <span class="points-unit">pt</span>
+                            <span id="points-convert-hint" style="font-size:10px;color:#e65100;margin-left:4px;display:none;">→ ¥<span id="pts-convertible">0</span> 変換可</span>
+                            <span class="points-arrow">›</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-bar">
+                <div class="action-item" onclick="openCamera('pay')">
+                    <div class="action-icon-wrap">
+                        <div class="action-circle"></div>
+                        <span class="action-emoji">🔳</span>
+                    </div>
+                    <div class="action-label">スキャン</div>
+                </div>
+                <div class="action-item" onclick="goSheet('remit_sheet')">
+                    <div class="action-icon-wrap">
+                        <div class="action-circle"></div>
+                        <span class="action-emoji">💸</span>
+                    </div>
+                    <div class="action-label">送金</div>
+                </div>
+                <div class="action-item" style="position:relative;" onclick="goFullPage('otoku_screen')">
+                    <div class="festival-badge">超ユーペイ祭</div>
+                    <div class="action-icon-wrap">
+                        <div class="action-circle"></div>
+                        <span class="action-emoji">🉐</span>
+                    </div>
+                    <div class="action-label">おトク</div>
+                </div>
+                <div class="action-item" onclick="openCamera('charge')">
+                    <div class="action-icon-wrap">
+                        <div class="action-circle"></div>
+                        <span class="action-emoji">💰</span>
+                    </div>
+                    <div class="action-label">チャージ</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-padding">
+            <div class="section-card">
+                <div class="func-grid">
+                    <div class="func-item" onclick="goSheet('coupon_sheet')">
+                        <div class="func-icon-wrap red">🎫</div>
+                        <div class="func-label">クーポン</div>
+                    </div>
+                    <div class="func-item" onclick="goFullPage('receipt_screen')">
+                        <div class="func-icon-wrap orange">🧾</div>
+                        <div class="func-label">レシート</div>
+                    </div>
+                    <div class="func-item" style="position:relative;" onclick="goFullPage('pickup_screen')">
+                        <div class="func-badge gold">20%付与</div>
+                        <div class="func-icon-wrap green">🛍️</div>
+                        <div class="func-label">ピックアップ</div>
+                    </div>
+                    <div class="func-item" onclick="yumazonLogin()">
+                        <div class="func-icon-wrap orange">📦</div>
+                        <div class="func-label">Yumazon<br>宅配</div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="section-padding">
+            <div class="campaign-strip">
+                <div class="campaign-left">
+                    <div class="campaign-tag">🎉 超ユーペイ祭 開催中</div>
+                    <div class="campaign-title">対象店舗で最大20%付与！</div>
+                </div>
+                <div class="campaign-right">🎊</div>
+            </div>
+        </div>
+
+        <div class="section-padding">
+            <div class="news-header">yutashoppayからのお知らせ</div>
+            <div class="banner-card" style="margin-bottom:10px;" onclick="goFullPage('pickup_screen')">
+                <div class="banner-inner">
+                    <div class="banner-img-wrap">🍱</div>
+                    <div class="banner-texts">
+                        <div class="banner-title">かんたんにグルメをテイクアウト</div>
+                        <div class="banner-sub">yutaピックアップの使い方をチェック</div>
+                    </div>
+                    <div class="banner-arrow">›</div>
+                </div>
+            </div>
+            <div class="banner-card" onclick="goFullPage('campaign_screen')">
+                <div class="banner-inner">
+                    <div class="banner-img-wrap" style="background:linear-gradient(135deg,#e3f2fd,#bbdefb)">💳</div>
+                    <div class="banner-texts">
+                        <div class="banner-title">超おトクな1カ月！</div>
+                        <div class="banner-sub">すべての対象店舗でボーナス付与中</div>
+                    </div>
+                    <div class="banner-arrow">›</div>
+                </div>
+            </div>
+        </div>
+        <div style="height:20px;"></div>
+    </div>
+
+    <!-- カメラ -->
+    <div id="camera_screen">
+        <video id="video" autoplay playsinline></video>
+        <div class="scan-header">
+            <div class="scan-back" onclick="closeCamera()">←</div>
+            <div class="scan-title" id="scan_title">QRコードをスキャン</div>
+        </div>
+        <div class="scan-frame-outer">
+            <div class="scan-corner tl"></div>
+            <div class="scan-corner tr"></div>
+            <div class="scan-corner bl"></div>
+            <div class="scan-corner br"></div>
+        </div>
+        <div class="scan-laser"></div>
+        <div class="scan-tip">QRコードを枠内に合わせてください</div>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <!-- 送金シート -->
+    <div class="modal-overlay" id="remit_sheet" onclick="closeSheetOutside(event,'remit_sheet')">
+        <div class="modal-sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-title">💸 送金QRを作成</div>
+            <div class="input-group">
+                <div class="input-label">金額 (¥)</div>
+                <input class="pp-input" type="number" id="remit_amount" placeholder="0">
+            </div>
+            <div class="input-group">
+                <div class="input-label">相手の名前 / 店舗名</div>
+                <input class="pp-input" type="text" id="remit_name" placeholder="例：田中さん">
+            </div>
+            <div class="input-group">
+                <div class="input-label">メモ (任意)</div>
+                <input class="pp-input" type="text" id="remit_detail" placeholder="">
+            </div>
+            <button class="pp-btn" onclick="generateRemitQR()">QRコードを作成</button>
+            <button class="pp-btn secondary" onclick="closeSheet('remit_sheet')">キャンセル</button>
+        </div>
+    </div>
+
+    <!-- クーポンシート -->
+    <div class="modal-overlay" id="coupon_sheet" onclick="closeSheetOutside(event,'coupon_sheet')">
+        <div class="modal-sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-title">🎫 クーポンを使う</div>
+            <div class="input-group">
+                <div class="input-label">クーポンコード</div>
+                <input class="pp-input" type="text" id="coupon_code" placeholder="例：YUTA500">
+            </div>
+            <p style="font-size:11px;color:var(--pp-sub);margin-bottom:16px;">※各クーポン1回限り。VIP・超ユーペイ祭割引は¥2,000以上の購入履歴が必要</p>
+            <button class="pp-btn" onclick="applyCouponCode()">コードを適用</button>
+            <button class="pp-btn dark" onclick="closeSheet('coupon_sheet'); openCamera('coupon')">📷 QRをスキャン</button>
+            <button class="pp-btn secondary" onclick="closeSheet('coupon_sheet')">キャンセル</button>
+        </div>
+    </div>
+
+    <!-- ポイントシート -->
+    <div class="modal-overlay" id="points_sheet" onclick="closeSheetOutside(event,'points_sheet')">
+        <div class="modal-sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-title">⭐ ポイント管理</div>
+
+            <div style="background:#fff8ee;border-radius:16px;padding:16px;margin-bottom:20px;border:1px solid #ffe0b2;">
+                <div style="font-size:12px;color:#e65100;font-weight:700;margin-bottom:6px;">現在のポイント</div>
+                <div style="display:flex;align-items:baseline;gap:4px;">
+                    <span style="font-size:36px;font-weight:900;color:#e65100;" id="sheet-points-display">0</span>
+                    <span style="font-size:14px;color:#e65100;font-weight:700;">pt</span>
+                </div>
+                <div style="font-size:11px;color:#aaa;margin-top:6px;">100ptにつき自動で¥100に変換されます</div>
+            </div>
+
+            <div id="point-history-list" style="margin-bottom:20px;">
+                <div style="font-size:13px;font-weight:800;margin-bottom:10px;color:#333;">変換履歴</div>
+                <div id="ph-list-inner" style="font-size:13px;color:#888;text-align:center;padding:16px 0;">変換履歴がありません</div>
+            </div>
+
+            <button class="pp-btn secondary" onclick="closeSheet('points_sheet')">閉じる</button>
+        </div>
+    </div>
+
+        <!-- チャージシート -->
+    <div class="modal-overlay" id="charge_sheet" onclick="closeSheetOutside(event,'charge_sheet')">
+        <div class="modal-sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-title">💰 チャージ</div>
+            <div class="input-group">
+                <div class="input-label">チャージ金額</div>
+                <input class="pp-input" type="number" id="charge_amount" placeholder="0">
+            </div>
+            <div class="quick-grid">
+                <button onclick="setCharge(1000)" class="pp-btn secondary" style="font-size:13px;padding:10px;">¥1,000</button>
+                <button onclick="setCharge(3000)" class="pp-btn secondary" style="font-size:13px;padding:10px;">¥3,000</button>
+                <button onclick="setCharge(5000)" class="pp-btn secondary" style="font-size:13px;padding:10px;">¥5,000</button>
+                <button onclick="setCharge(10000)" class="pp-btn secondary" style="font-size:13px;padding:10px;">¥10,000</button>
+                <button onclick="setCharge(20000)" class="pp-btn secondary" style="font-size:13px;padding:10px;">¥20,000</button>
+                <button onclick="setCharge(50000)" class="pp-btn secondary" style="font-size:13px;padding:10px;">¥50,000</button>
+            </div>
+            <button class="pp-btn" onclick="executeCharge()">チャージする</button>
+            <button class="pp-btn secondary" onclick="closeSheet('charge_sheet')">キャンセル</button>
+        </div>
+    </div>
+
+    <!-- フルページ: 支払い全画面 -->
+    <!-- 残高画面 -->
+    <div class="modal-fullpage" id="balance_screen">
+        <div class="modal-nav">
+            <div class="modal-back" onclick="closeFullPage('balance_screen')">←</div>
+            <div class="modal-title">残高</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center;background:#f5f5f5;min-height:calc(100vh - 80px);">
+            <!-- 大きいYマーク -->
+            <div style="width:120px;height:120px;background:linear-gradient(135deg,#ff0033,#ff4466);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:28px;box-shadow:0 8px 32px rgba(255,0,51,0.35);">
+                <span style="font-size:64px;font-weight:900;color:white;line-height:1;">Y</span>
+            </div>
+            <div style="font-size:14px;color:#888;margin-bottom:8px;font-weight:600;">yutashoppay 残高</div>
+            <div style="font-size:48px;font-weight:900;color:#1a1a1a;letter-spacing:-2px;margin-bottom:6px;">¥<span class="current-balance">10,000</span></div>
+            <div style="font-size:13px;color:#e65100;font-weight:700;margin-bottom:40px;">⭐ <span class="current-points">0</span> pt</div>
+            <button onclick="openCamera('charge');closeFullPage('balance_screen');" style="background:linear-gradient(90deg,#ff0033,#ff4466);color:white;border:none;border-radius:50px;padding:16px 48px;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 4px 16px rgba(255,0,51,0.4);">
+                チャージする
+            </button>
+        </div>
+    </div>
+
+    <!-- アカウント画面 -->
+    <div class="modal-fullpage" id="account_screen">
+        <div class="modal-nav">
+            <div class="modal-back" onclick="closeFullPage('account_screen')">←</div>
+            <div class="modal-title">アカウント</div>
+        </div>
+        <div style="overflow-y:auto;height:calc(100vh - 80px);background:#f5f5f5;padding:20px 16px;" id="account-body">
+            <!-- renderAccountScreen() で描画 -->
+        </div>
+    </div>
+
+        <div class="modal-fullpage" id="fullpay_screen">
+        <div class="modal-nav">
+            <div class="modal-back" onclick="closeFullPage('fullpay_screen')">←</div>
+            <div class="modal-title">yutashoppay</div>
+        </div>
+        <div class="modal-body fullpay-screen">
+            <div class="app-name-badge" style="margin:0 auto 16px;display:inline-flex;">
+                <span class="pp-logo">Y</span>
+                <span>yutashoppay残高からの支払い</span>
+            </div>
+            <div class="barcode-bar"></div>
+            <img class="qr-big" src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=yuta_exclusive">
+            <div class="fullpay-balance">¥<span class="current-balance">10,000</span></div>
+        </div>
+    </div>
+
+    <!-- フルページ: 履歴 -->
+    <div class="modal-fullpage" id="history_screen">
+        <div class="modal-nav">
+            <div class="modal-back" onclick="closeFullPage('history_screen')">←</div>
+            <div class="modal-title">取引履歴</div>
+        </div>
+        <div class="modal-body">
+            <div id="tx_list">
+                <div style="text-align:center;color:var(--pp-sub);padding:40px 0;font-size:14px;">まだ取引がありません</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- フルページ: 送金QR表示 -->
+    <div class="modal-fullpage" id="remit_display_screen">
+        <div class="modal-nav">
+            <div class="modal-back" onclick="closeFullPage('remit_display_screen')">←</div>
+            <div class="modal-title">受取QR</div>
+        </div>
+        <div class="modal-body" style="text-align:center;">
+            <div id="remit_qr_area" style="margin:20px 0;"></div>
+            <div id="remit_info_text" style="font-size:18px;font-weight:700;"></div>
+            <p style="color:var(--pp-sub);font-size:12px;margin-top:8px;">相手にこのQRをスキャンしてもらってください</p>
+            <button class="pp-btn" style="margin-top:30px;" onclick="closeFullPage('remit_display_screen')">完了</button>
+        </div>
+    </div>
+
+    <!-- フルページ: スタッフ秘密画面 -->
+    <div class="modal-fullpage" id="staff_screen">
+        <div class="modal-nav">
+            <div class="modal-back" onclick="closeFullPage('staff_screen')">←</div>
+            <div class="modal-title">店員専用</div>
+        </div>
+        <div class="modal-body">
+            <div class="staff-badge">🔐 SECRET MODE</div>
+            <div class="input-group" style="margin-top:12px;">
+                <div class="input-label">請求金額</div>
+                <input class="pp-input" type="number" id="manual_amount" placeholder="0">
+            </div>
+            <div class="input-group">
+                <div class="input-label">店舗名</div>
+                <input class="pp-input" type="text" id="manual_store" placeholder="yuta商店">
+            </div>
+            <button class="pp-btn" onclick="executeManualPay()">決済確定</button>
+            <hr style="margin:20px 0;border-color:var(--pp-border);">
+            <div class="input-label" style="margin-bottom:8px;">🔧 管理チャージ</div>
+            <div class="input-group">
+                <input class="pp-input" type="number" id="manual_charge" placeholder="チャージ額">
+            </div>
+            <button class="pp-btn dark" onclick="executeManualCharge()">チャージ実行</button>
+            <hr style="margin:20px 0;border-color:var(--pp-border);">
+            <div class="input-label" style="margin-bottom:8px;">⭐ ポイント操作</div>
+            <div style="background:#fff8ee;border-radius:12px;padding:12px 14px;margin-bottom:12px;border:1px solid #ffe0b2;font-size:13px;color:#e65100;font-weight:700;">
+                現在: <span id="staff-points-display">0</span>pt
+            </div>
+            <div class="input-group">
+                <input class="pp-input" type="number" id="manual_points" placeholder="ポイント数">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <button onclick="staffPointAdd()" style="background:#fff8ee;color:#e65100;border:2px solid #ffe0b2;border-radius:50px;padding:14px;font-size:14px;font-weight:900;cursor:pointer;">➕ 付与</button>
+                <button onclick="staffPointRemove()" style="background:#fff0f0;color:#ff0033;border:2px solid #ffcdd2;border-radius:50px;padding:14px;font-size:14px;font-weight:900;cursor:pointer;">➖ 減算</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 近くのお店画面 -->
+    <div class="modal-fullpage" id="nearby_screen">
+        <div class="modal-nav">
+            <div class="modal-back" onclick="closeFullPage('nearby_screen')">←</div>
+            <div class="modal-title">📍 近くのお店</div>
+        </div>
+        <div style="overflow-y:auto;height:calc(100vh - 80px);background:#f5f5f5;">
+
+            <div style="padding:16px 16px 8px;">
+                <div style="font-size:13px;color:#888;margin-bottom:2px;">現在地周辺のyutashoppay対応店舗</div>
+            </div>
+
+            <!-- 店舗リスト -->
+            <div style="padding:0 12px 24px;display:flex;flex-direction:column;gap:12px;">
+
+                <!-- 1 YUTASHOP+ -->
+                <div style="background:white;border-radius:18px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);">
+                    <div style="background:linear-gradient(135deg,#ff0033,#ff6680);height:6px;"></div>
+                    <div style="padding:16px;">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#ff0033,#ff4466);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🏪</div>
+                            <div style="flex:1;">
+                                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                                    <span style="background:#ff0033;color:white;font-size:10px;font-weight:900;padding:2px 7px;border-radius:20px;">No.1</span>
+                                    <span style="font-size:16px;font-weight:900;">YUTASHOP＋</span>
+                                </div>
+                                <div style="font-size:12px;color:#555;margin-bottom:6px;">📍 御玉市2丁目 サンモール</div>
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                    <span style="background:#fff0f0;color:#ff0033;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid #ffcdd2;">yutashoppay対応</span>
+                                    <span style="background:#f0fff4;color:#00c853;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid #c8e6c9;">営業中</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2 石橋町YUPAYドーム商店街 -->
+                <div style="background:white;border-radius:18px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);">
+                    <div style="background:linear-gradient(135deg,#1565c0,#42a5f5);height:6px;"></div>
+                    <div style="padding:16px;">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#1565c0,#42a5f5);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🏟️</div>
+                            <div style="flex:1;">
+                                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                                    <span style="background:#1565c0;color:white;font-size:10px;font-weight:900;padding:2px 7px;border-radius:20px;">No.2</span>
+                                    <span style="font-size:16px;font-weight:900;">石橋町YUPAYドーム</span>
+                                </div>
+                                <div style="font-size:12px;color:#555;margin-bottom:6px;">📍 石橋町 商店街</div>
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                    <span style="background:#fff0f0;color:#ff0033;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid #ffcdd2;">yutashoppay対応</span>
+                                    <span style="background:#f0fff4;color:#00c853;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid #c8e6c9;">営業中</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3 E-YD えーよど居酒屋 -->
+                <div style="background:white;border-radius:18px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);">
+                    <div style="background:linear-gradient(135deg,#e65100,#ff9800);height:6px;"></div>
+                    <div style="padding:16px;">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#e65100,#ff9800);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🍺</div>
+                            <div style="flex:1;">
+                                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                                    <span style="background:#e65100;color:white;font-size:10px;font-weight:900;padding:2px 7px;border-radius:20px;">No.3</span>
+                                    <span style="font-size:16px;font-weight:900;">E-YD えーよど居酒屋</span>
+                                </div>
+                                <div style="font-size:12px;color:#555;margin-bottom:6px;">📍 えーよど商店街</div>
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                    <span style="background:#fff0f0;color:#ff0033;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid #ffcdd2;">yutashoppay対応</span>
+                                    <span style="background:#fff8ee;color:#e65100;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid #ffe0b2;">夜のみ営業</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 生美瑠紅牧場 -->
+                <div style="background:white;border-radius:18px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);">
+                    <div style="background:linear-gradient(135deg,#2e7d32,#66bb6a);height:6px;"></div>
+                    <div style="padding:16px;">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#2e7d32,#66bb6a);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🐄</div>
+                            <div style="flex:1;">
+                                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                                    <span style="background:#2e7d32;color:white;font-size:10px;font-weight:900;padding:2px 7px;border-radius:20px;">No.4</span>
+                                    <span style="font-size:15px;font-weight:900;">生美瑠紅牧場</span>
+                                </div>
+                                <div style="font-size:12px;color:#888;margin-bottom:2px;">なまみるく牧場</div>
+                                <div style="font-size:12px;color:#555;margin-bottom:6px;">📍 入場料＆体験料</div>
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                    <span style="background:#fff0f0;color:#ff0033;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid #ffcdd2;">yutashoppay対応</span>
+                                    <span style="background:#f0fff4;color:#00c853;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid #c8e6c9;">営業中</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+            <!-- 通知画面 -->
+    <div class="modal-fullpage" id="notif_screen">
+        <div class="modal-nav">
+            <div class="modal-back" onclick="closeFullPage('notif_screen')">←</div>
+            <div class="modal-title">🔔 通知</div>
+            <div onclick="clearAllNotifs()" style="margin-left:auto;font-size:12px;color:var(--pp-red);font-weight:800;cursor:pointer;padding:4px 8px;">すべて消去</div>
+        </div>
+        <div style="overflow-y:auto;height:calc(100vh - 80px);background:#f5f5f5;padding:12px;">
+            <div id="notif-list">
+                <div style="text-align:center;color:#bbb;padding:60px 0;font-size:14px;">🔕 通知はありません</div>
+            </div>
+        </div>
+    </div>
+
+        <!-- おトク画面 -->
+    <div class="modal-fullpage" id="otoku_screen">
+        <div class="modal-nav">
+            <div class="modal-back" onclick="closeFullPage('otoku_screen')">←</div>
+            <div class="modal-title">🉐 おトク・クーポン一覧</div>
+        </div>
+        <div class="modal-body">
+            <div style="font-size:12px;color:var(--pp-sub);margin-bottom:16px;">各クーポンは1回限り有効。条件があるものは履歴確認後に使用できます。</div>
+            <div id="otoku-list"></div>
+        </div>
+    </div>
+
+    <!-- ピックアップ画面 -->
+    <div class="modal-fullpage" id="pickup_screen">
+        <div class="modal-nav" style="border-bottom:none;padding-bottom:8px;">
+            <div class="modal-back" onclick="closeFullPage('pickup_screen')">←</div>
+            <div class="modal-title" style="font-size:13px;font-weight:800;letter-spacing:1px;">YUTASHOPPAYMART 🛍️</div>
+        </div>
+        <div style="overflow-y:auto;height:calc(100vh - 80px);background:white;">
+
+            <!-- タイトル -->
+            <div style="text-align:center;padding:16px 24px 32px;">
+                <div style="font-size:48px;font-weight:900;letter-spacing:-2px;margin-bottom:0;">-PICUP-</div>
+            </div>
+
+            <!-- アイテム1: いちごショートケーキ -->
+            <div style="padding:0 28px 40px;position:relative;">
+                <div style="font-size:18px;font-weight:700;color:#333;margin-bottom:4px;">　プチギフト</div>
+                <div style="font-size:15px;color:#444;line-height:1.7;margin-bottom:4px;">
+                    お疲れさまの気持ちをこめて<br>いちごショートケーキ
+                </div>
+                <div style="font-size:38px;font-weight:900;margin-bottom:12px;">購入＆宅配</div>
+                <!-- ケーキ絵文字 大きく右に -->
+                <div style="position:absolute;right:16px;top:0;font-size:90px;line-height:1;pointer-events:none;opacity:0.9;">🍰</div>
+                <button onclick="purchasePickup('いちごショートケーキ', 580)" style="background:#ff0033;color:white;border:none;border-radius:50px;padding:14px 32px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 14px rgba(255,0,51,0.35);">
+                    ¥580で購入する
+                </button>
+            </div>
+
+            <!-- 区切り -->
+            <div style="height:1px;background:#f0f0f0;margin:0 24px 32px;"></div>
+
+            <!-- アイテム2: 富士山ミネラルウォーター -->
+            <div style="padding:0 28px 40px;position:relative;">
+                <div style="font-size:18px;font-weight:700;color:#333;margin-bottom:4px;">　オトク</div>
+                <div style="font-size:15px;color:#444;line-height:1.7;margin-bottom:4px;">
+                    富士山のミネラルウォーター<br>定期便 50%off
+                </div>
+                <div style="font-size:38px;font-weight:900;margin-bottom:12px;">購入＆宅配</div>
+                <!-- 富士山絵文字 大きく右に -->
+                <div style="position:absolute;right:10px;top:0;font-size:90px;line-height:1;pointer-events:none;opacity:0.9;">💧</div>
+                <button onclick="purchasePickup('富士山ミネラルウォーター定期便', 1980)" style="background:#ff0033;color:white;border:none;border-radius:50px;padding:14px 32px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 14px rgba(255,0,51,0.35);">
+                    ¥1,980で購入する
+                </button>
+            </div>
+
+            <!-- 区切り -->
+            <div style="height:1px;background:#f0f0f0;margin:0 24px 32px;"></div>
+
+            <!-- アイテム3: Yumazon宅配 -->
+            <div style="padding:0 28px 48px;position:relative;">
+                <div style="font-size:18px;font-weight:700;color:#333;margin-bottom:4px;">　Yumazon宅配</div>
+                <div style="font-size:15px;color:#444;line-height:1.7;margin-bottom:4px;">
+                    なんでもお届け<br>送料無料キャンペーン中
+                </div>
+                <div style="font-size:38px;font-weight:900;margin-bottom:12px;">購入＆宅配</div>
+                <div style="position:absolute;right:16px;top:0;font-size:90px;line-height:1;pointer-events:none;opacity:0.9;">📦</div>
+                <button onclick="yumazonLogin()" style="background:#333;color:white;border:none;border-radius:50px;padding:14px 32px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.2);">
+                    注文する（送料無料）
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+            <!-- レシート画面 -->
+    <div class="modal-fullpage" id="receipt_screen">
+        <div class="modal-nav">
+            <div class="modal-back" onclick="closeFullPage('receipt_screen')">←</div>
+            <div class="modal-title">🧾 スマートレシート</div>
+        </div>
+        <div class="modal-body" style="padding:16px 12px;">
+            <div id="receipt-list">
+                <div style="text-align:center;color:var(--pp-sub);padding:40px 0;font-size:14px;">購入履歴がありません</div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Yumazonログインダイアログ -->
+    <div id="yumazon_dialog" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:3000;align-items:center;justify-content:center;">
+        <div style="background:white;border-radius:20px;padding:28px 24px;max-width:320px;width:88%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+            <div style="font-size:36px;margin-bottom:12px;">📦</div>
+            <div style="font-size:17px;font-weight:900;margin-bottom:12px;">Yumazon</div>
+            <div style="font-size:14px;color:#444;line-height:1.7;margin-bottom:24px;">
+                Yumazonに登録またはログインしますか？<br>
+                <span style="font-size:12px;color:#888;">登録・ログインにはLINEのみ使用できます。</span>
+            </div>
+            <div style="display:flex;gap:10px;">
+                <button onclick="closeYumazonDialog()" style="flex:1;background:#f0f0f0;color:#333;border:none;border-radius:50px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;">キャンセル</button>
+                <button onclick="openYumazonLine()" style="flex:1;background:#06C755;color:white;border:none;border-radius:50px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;">
+                    LINE で開く
+                </button>
+            </div>
+        </div>
+    </div>
+
+        <!-- 特設キャンペーン画面 -->
+    <div class="modal-fullpage" id="campaign_screen">
+        <div class="modal-nav">
+            <div class="modal-back" onclick="closeFullPage('campaign_screen')">←</div>
+            <div class="modal-title">🎉 超ユーペイ祭 特設ページ</div>
+        </div>
+        <div style="overflow-y:auto;height:calc(100vh - 80px);">
+
+            <!-- ヒーローバナー -->
+            <div style="background:linear-gradient(135deg,#ff0033,#ff6680);padding:32px 24px;text-align:center;color:white;">
+                <div style="font-size:13px;font-weight:800;opacity:0.9;letter-spacing:1px;margin-bottom:8px;">🎊 期間限定開催中 🎊</div>
+                <div style="font-size:32px;font-weight:900;margin-bottom:8px;letter-spacing:-1px;">超ユーペイ祭</div>
+                <div style="font-size:15px;opacity:0.9;margin-bottom:20px;">対象店舗で最大20%ポイント付与！</div>
+                <div style="background:rgba(255,255,255,0.2);border-radius:16px;padding:16px 20px;display:inline-block;">
+                    <div style="font-size:12px;opacity:0.8;margin-bottom:4px;">期間</div>
+                    <div style="font-size:14px;font-weight:900;">2025年 開催中</div>
+                </div>
+            </div>
+
+            <!-- 特典内容 -->
+            <div style="padding:24px 20px;">
+                <div style="font-size:16px;font-weight:900;margin-bottom:16px;">🎁 特典内容</div>
+
+                <div style="background:white;border-radius:16px;padding:18px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="font-size:36px;">⭐</div>
+                        <div>
+                            <div style="font-size:15px;font-weight:900;margin-bottom:4px;">ポイント最大20%付与</div>
+                            <div style="font-size:12px;color:#888;line-height:1.5;">対象店舗でyutashoppayを使うと<br>購入額の最大20%がポイントで戻ってくる</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background:white;border-radius:16px;padding:18px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="font-size:36px;">🎫</div>
+                        <div>
+                            <div style="font-size:15px;font-weight:900;margin-bottom:4px;">限定クーポン発行中</div>
+                            <div style="font-size:12px;color:#888;line-height:1.5;">おトク画面からクーポンコードを入力して<br>お得なポイントをゲットしよう</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background:white;border-radius:16px;padding:18px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="font-size:36px;">🛍️</div>
+                        <div>
+                            <div style="font-size:15px;font-weight:900;margin-bottom:4px;">ピックアップ商品もお得</div>
+                            <div style="font-size:12px;color:#888;line-height:1.5;">期間中のピックアップ購入で<br>さらに20%ポイント付与</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="goFullPage('otoku_screen'); closeFullPage('campaign_screen');" style="width:100%;background:linear-gradient(90deg,#ff0033,#ff4466);color:white;border:none;border-radius:50px;padding:18px;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 4px 16px rgba(255,0,51,0.4);">
+                    🎫 クーポンを使う
+                </button>
+            </div>
+        </div>
+    </div>
+
+        <!-- 完了画面 -->
+    <div id="complete_screen">
+        <div class="complete-circle" id="comp_circle">✅</div>
+        <div class="complete-title" id="comp_title">決済完了</div>
+        <div class="complete-amount" id="comp_amount">¥0</div>
+        <div class="complete-store" id="comp_store"></div>
+        <div class="complete-tag">ユタショッペイ！♪</div>
+    </div>
+
+</div>
+
+<nav class="bottom-nav">
+    <div class="nav-item active" onclick="setTab(0)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span class="nav-label">ホーム</span>
+    </div>
+    <div class="nav-item" onclick="setTab(1);goFullPage('nearby_screen')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span class="nav-label">近くのお店</span>
+    </div>
+    <div class="nav-pay-btn" onclick="openCamera('pay')">
+        <div class="nav-pay-inner">
+            <span class="nav-pay-icon">⬛</span>
+            <span class="nav-pay-label">支払う</span>
+        </div>
+    </div>
+    <div class="nav-item" onclick="setTab(3);goFullPage('balance_screen')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        <span class="nav-label">残　高</span>
+    </div>
+    <div class="nav-item" onclick="setTab(4);goFullPage('account_screen')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="nav-label">アカウント</span>
+    </div>
+</nav>
+
+<script>
+    // ===== ローカルストレージ =====
+    function saveData() {
+        localStorage.setItem('ysp_balance', balance);
+        localStorage.setItem('ysp_points', points);
+        localStorage.setItem('ysp_pointHistory', JSON.stringify(pointHistory));
+        localStorage.setItem('ysp_usedCoupons', JSON.stringify([...usedCoupons]));
+        localStorage.setItem('ysp_txHistory', JSON.stringify(txHistory));
+        localStorage.setItem('ysp_notifications', JSON.stringify(notifications));
+        localStorage.setItem('ysp_account', JSON.stringify(currentUser));
+    }
+
+    function loadData() {
+        try {
+            balance = parseFloat(localStorage.getItem('ysp_balance')) || 10000;
+            points = parseFloat(localStorage.getItem('ysp_points')) || 0;
+            pointHistory = JSON.parse(localStorage.getItem('ysp_pointHistory') || '[]');
+            usedCoupons = new Set(JSON.parse(localStorage.getItem('ysp_usedCoupons') || '[]'));
+            txHistory = JSON.parse(localStorage.getItem('ysp_txHistory') || '[]');
+            notifications = JSON.parse(localStorage.getItem('ysp_notifications') || '[]');
+            currentUser = JSON.parse(localStorage.getItem('ysp_account') || 'null');
+        } catch(e) { console.log('load error', e); }
+    }
+
+    let balance = 10000;
+    let points = 0;
+    let pointHistory = [];
+    let usedCoupons = new Set();
+    let txHistory = [];
+    let currentUser = null; // { email, password }
+    let videoStream = null;
+    let isScanning = false;
+    let scanMode = 'pay';
+    let tapCount = 0;
+    let touchStartY = 0;
+
+    // 表示のみ更新（変換なし）
+    function refreshDisplay() {
+        document.querySelectorAll(".current-balance").forEach(el => {
+            el.textContent = balance.toLocaleString();
+        });
+        document.querySelectorAll(".current-points").forEach(el => {
+            el.textContent = points.toLocaleString();
+        });
+        const hint = document.getElementById('points-convert-hint');
+        const conv = document.getElementById('pts-convertible');
+        if(hint && conv) {
+            if(pointHistory.length > 0) {
+                hint.style.display = 'inline';
+                conv.textContent = pointHistory[pointHistory.length-1].yen.toLocaleString();
+            } else {
+                hint.style.display = 'none';
+            }
+        }
+    }
+
+    // ポイント自動変換（明示的に呼んだときだけ実行）
+    function autoConvertPoints() {
+        if(points >= 100) {
+            const convertAmt = Math.floor(points / 100) * 100;
+            const convertYen = convertAmt;
+            balance += convertYen;
+            points -= convertAmt;
+            pointHistory.push({ pts: convertAmt, yen: convertYen, date: new Date().toLocaleDateString('ja-JP') });
+            addTx('rcv', `ポイント自動変換 (${convertAmt}pt→¥${convertYen})`, convertYen);
+        saveData();
+        addNotif('pt', '⭐ ポイントが残高に変換されました', `${convertAmt}pt → ¥${convertYen.toLocaleString()} 残高に追加されました`);
+        }
+        refreshDisplay();
+    }
+
+    // updateBalance は後方互換のためrefreshDisplayを呼ぶだけ（変換しない）
+    function updateBalance() {
+        refreshDisplay();
+    }
+
+    function renderPointsSheet() {
+        const el = document.getElementById('ph-list-inner');
+        document.getElementById('sheet-points-display').textContent = points.toLocaleString();
+        if(pointHistory.length === 0) {
+            el.innerHTML = '<div style="text-align:center;color:#bbb;padding:16px 0;font-size:13px;">変換履歴がありません</div>';
+            return;
+        }
+        el.innerHTML = pointHistory.slice().reverse().map((h, i) => {
+            const idx = pointHistory.length - 1 - i;
+            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f5;gap:8px;">
+                <div style="flex:1;">
+                    <div style="font-size:13px;font-weight:700;">${h.pts}pt → ¥${h.yen.toLocaleString()}</div>
+                    <div style="font-size:11px;color:#aaa;">${h.date}</div>
+                </div>
+                <button onclick="revertPoint(${idx})" style="background:#fff0f0;color:#ff0033;border:1px solid #ffcdd2;border-radius:20px;padding:6px 10px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">ptに戻す</button>
+            </div>`;
+        }).join('');
+        // 戻したポイントがあれば「残高に変換」ボタンエリア表示
+        const canConvert = points >= 100;
+        const convertSection = document.createElement('div');
+        convertSection.style = 'margin-top:16px;';
+        if(canConvert) {
+            const convertAmt = Math.floor(points / 100) * 100;
+            convertSection.innerHTML = `<button onclick="manualConvertPoints()" style="width:100%;background:linear-gradient(90deg,#ff0033,#ff4466);color:white;border:none;border-radius:50px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;">⭐ ${convertAmt}ptを¥${convertAmt}に変換する</button>`;
+            el.parentNode.appendChild(convertSection);
+        }
+    }
+
+    // ポイントに戻す（残高→ポイント）
+    function revertPoint(idx) {
+        const h = pointHistory[idx];
+        if(!h) return;
+        if(balance < h.yen) { alert('残高が不足しているため戻せません'); return; }
+        balance -= h.yen;
+        points += h.pts;
+        pointHistory.splice(idx, 1);
+        addTx('pay', `ポイントに戻す (¥${h.yen}→${h.pts}pt)`, h.yen);
+        refreshDisplay();
+        renderPointsSheet();
+        renderTxList();
+    }
+
+    // ポイントを残高に再変換
+    function convertPointToBalance(idx) {
+        const h = pointHistory[idx];
+        if(!h) return;
+        // pointHistory にあるということはすでに変換済み → 残高にそのまま乗ってる
+        // ここでは「戻したポイント」を再度残高に変換する
+        if(points < h.pts) { alert('ポイントが不足しています'); return; }
+        points -= h.pts;
+        balance += h.yen;
+        pointHistory.splice(idx, 1);
+        pointHistory.push({ pts: h.pts, yen: h.yen, date: new Date().toLocaleDateString('ja-JP') });
+        addTx('rcv', `ポイント再変換 (${h.pts}pt→¥${h.yen})`, h.yen);
+        refreshDisplay();
+        renderPointsSheet();
+        renderTxList();
+    }
+
+    function setTab(i) {
+        document.querySelectorAll('.nav-item').forEach((el, idx) => {
+            el.classList.toggle('active', idx === i);
+        });
+        if(i === 3) openCamera('charge');
+    }
+
+    function goSheet(id) {
+        document.getElementById(id).classList.add('active');
+        if(id === 'points_sheet') renderPointsSheet();
+    }
+    function closeSheet(id) { document.getElementById(id).classList.remove('active'); }
+
+    function manualConvertPoints() {
+        if(points < 100) { alert('100pt以上必要です'); return; }
+        autoConvertPoints();
+        renderPointsSheet();
+        renderTxList();
+    }
+    function closeSheetOutside(e, id) { if(e.target === document.getElementById(id)) closeSheet(id); }
+
+    function goFullPage(id) { const el = document.getElementById(id); el.classList.add('active'); refreshDisplay(); if(id==='staff_screen') updateStaffPointsDisplay(); if(id==='otoku_screen') renderOtokuList(); if(id==='receipt_screen') renderReceiptList(); if(id==='notif_screen'){ notifications.forEach(n=>n.read=true); updateNotifBadge(); renderNotifList(); } if(id==='account_screen') renderAccountScreen(); if(id==='balance_screen') refreshDisplay(); }
+    function closeFullPage(id) { document.getElementById(id).classList.remove('active'); if(id==='nearby_screen'||id==='balance_screen'||id==='account_screen'){ document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',i===0)); } }
+
+    // 隠しコマンド
+    const qrWrap = document.getElementById("qr_home_wrap");
+    qrWrap.addEventListener('click', () => {
+        tapCount++;
+        if(tapCount >= 4) { tapCount = 0; goFullPage('staff_screen'); }
+        setTimeout(() => tapCount = 0, 2000);
+    });
+
+
+    function setCharge(v) { document.getElementById('charge_amount').value = v; }
+    function executeCharge() {
+        const amt = parseInt(document.getElementById('charge_amount').value);
+        if(!amt || amt <= 0) { alert('金額を入力してください'); return; }
+        closeSheet('charge_sheet');
+        balance += amt;
+        addTx('rcv', 'チャージ', amt);
+        addNotif('charge', '⚡ チャージ完了', `¥${amt.toLocaleString()}をチャージしました`);
+        showComplete('💰', 'チャージ完了', amt, 'yutashoppay');
+    }
+
+    function generateRemitQR() {
+        const amt = document.getElementById("remit_amount").value;
+        const name = document.getElementById("remit_name").value || "未設定";
+        if(!amt) { alert("金額を入力してください"); return; }
+        const yus = `/yuscript\n@入金価格\n=${amt}\nnkkg:/${name}/\n/送金@\n/off`;
+        document.getElementById("remit_qr_area").innerHTML =
+            `<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(yus)}" width="250" style="border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.12);">`;
+        document.getElementById("remit_info_text").innerText = `${name} → ¥${parseInt(amt).toLocaleString()}`;
+        closeSheet('remit_sheet');
+        goFullPage('remit_display_screen');
+    }
+
+    // クーポン定義
+    // type: 'points' = ポイント付与, 'discount' = 次回決済割引ポイント
+    // condition: null=誰でも, 'purchase2000'=2000円以上の購入履歴が必要
+    const COUPON_DEFS = {
+        'YUTA500':     { pts: 500,  label: '500ポイント特典',     condition: null },
+        'YUTA1000':    { pts: 1000, label: '1000ポイント特典',    condition: null },
+        'YUTAVIP':     { pts: 3000, label: 'VIP 3000ポイント',   condition: 'purchase2000' },
+        'TYOUYUPAY50': { pts: 500,  label: '超ユーペイ祭 50%割引ポイント', condition: 'purchase2000' },
+    };
+
+    function hasPurchaseOver2000() {
+        return txHistory.some(tx => tx.type === 'pay' && tx.amount >= 2000);
+    }
+
+    function applyCouponCode() {
+        const code = document.getElementById("coupon_code").value.trim().toUpperCase();
+        const def = COUPON_DEFS[code];
+
+        if(!def) { alert('無効なクーポンコードです'); return; }
+
+        if(usedCoupons.has(code)) {
+            alert('このクーポンはすでに使用済みです');
+            return;
+        }
+
+        if(def.condition === 'purchase2000' && !hasPurchaseOver2000()) {
+            alert('このクーポンは2,000円以上の購入履歴がある方のみ使えます');
+            return;
+        }
+
+        usedCoupons.add(code);
+        points += def.pts;
+        closeSheet('coupon_sheet');
+        document.getElementById("coupon_code").value = '';
+        addTx('rcv', def.label, def.pts, 'pt');
+        autoConvertPoints();
+        showComplete('🎫', 'クーポン適用完了', def.pts, def.label + ' (ポイント付与)');
+    }
+
+    async function openCamera(mode) {
+        scanMode = mode;
+        const titles = { pay: '店または送金画面のQRをスキャン', coupon: 'クーポンQRをスキャン', charge: 'チャージQRをスキャン' };
+        document.getElementById("scan_title").textContent = titles[mode] || 'QRをスキャン';
+        document.getElementById("camera_screen").style.display = "block";
+        try {
+            videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+            document.getElementById("video").srcObject = videoStream;
+            isScanning = true;
+            requestAnimationFrame(tick);
+        } catch(err) { alert("カメラへのアクセスが必要です"); closeCamera(); }
+    }
+    function closeCamera() {
+        if(videoStream) videoStream.getTracks().forEach(t => t.stop());
+        document.getElementById("camera_screen").style.display = "none";
+        isScanning = false;
+    }
+    function tick() {
+        if(!isScanning) return;
+        const video = document.getElementById("video");
+        const canvas = document.getElementById("canvas");
+        if(video.readyState === video.HAVE_ENOUGH_DATA) {
+            canvas.height = video.videoHeight; canvas.width = video.videoWidth;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const code = jsQR(ctx.getImageData(0,0,canvas.width,canvas.height).data, canvas.width, canvas.height);
+            if(code) {
+                if(scanMode === 'coupon') {
+                    if(code.data === "YUTA500_QR") {
+                        balance += 500; addTx('rcv','QRクーポン',500);
+                        showComplete('🎫','受取完了',500,'QR特典'); closeCamera();
+                    }
+                } else { parseYuScript(code.data); }
+                if(isScanning) requestAnimationFrame(tick);
+                return;
+            }
+        }
+        requestAnimationFrame(tick);
+    }
+
+    function parseYuScript(data) {
+        if(!data.includes("/yuscript")) return;
+        closeCamera();
+        try {
+            // 金額: =数字 の形式
+            const priceMatch = data.match(/=(\d+)/);
+            if(!priceMatch) { alert('金額の読み取りに失敗しました'); return; }
+            const price = parseInt(priceMatch[1]);
+
+            // 店名: ndtp:/店名/ または nkkg:/店名/ の形式
+            const storeMatch = data.match(/(?:ndtp|nkkg):\/([^/]+)\//);
+            const store = storeMatch ? storeMatch[1] : '不明';
+
+            if(data.includes("ndtp:/")) {
+                if(balance < price) { alert('残高が不足しています'); return; }
+                balance -= price; addTx('pay', store, price);
+                showComplete('✅','決済完了', price, store);
+            } else if(data.includes("nkkg:/")) {
+                balance += price; addTx('rcv', store, price);
+                showComplete('💰','受取完了', price, store);
+            } else {
+                alert('QRの種類を認識できませんでした');
+            }
+        } catch(e) { alert('QRの読み取りに失敗しました: ' + e.message); }
+    }
+
+    function showComplete(icon, title, amt, store) {
+        const el = document.getElementById('complete_screen');
+        const circle = document.getElementById('comp_circle');
+        circle.textContent = icon;
+        circle.className = 'complete-circle' + (icon !== '✅' ? ' receive' : '');
+        document.getElementById('comp_title').textContent = title;
+        document.getElementById('comp_amount').textContent = `¥${amt.toLocaleString()}`;
+        document.getElementById('comp_store').textContent = store;
+        el.classList.add('active');
+        refreshDisplay();
+        // 通知送信
+        const isPt = typeof amt === 'number' && store.includes('ポイント');
+        if(icon === '✅') addNotif('pay', title, `${store} ¥${amt.toLocaleString()}を支払いました`);
+        else if(icon === '💰') addNotif('rcv', title, `¥${amt.toLocaleString()}がチャージされました`);
+        else if(icon === '🎫') addNotif('coupon', title, `${amt.toLocaleString()}pt獲得！ ${store}`);
+        else if(icon === '🛍️') addNotif('pay', title, `${store} ¥${amt.toLocaleString()}を購入しました`);
+        setTimeout(() => el.classList.remove('active'), 2800);
+    }
+
+    function addTx(type, store, amount, unit) {
+        const now = new Date();
+        txHistory.unshift({ type, store, amount, unit: unit || '¥',
+            date: now.toLocaleDateString('ja-JP') + ' ' + now.toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'})
+        });
+        renderTxList();
+        renderReceiptList();
+        saveData();
+    }
+    function renderTxList() {
+        const el = document.getElementById('tx_list');
+        if(txHistory.length === 0) {
+            el.innerHTML = '<div style="text-align:center;color:var(--pp-sub);padding:40px 0;font-size:14px;">まだ取引がありません</div>';
+            return;
+        }
+        el.innerHTML = txHistory.map(tx => {
+            const isPt = tx.unit === 'pt';
+            const icon = tx.type === 'pay' ? '💳' : (isPt ? '⭐' : '💰');
+            const amtStr = isPt
+                ? `+${tx.amount.toLocaleString()}pt`
+                : (tx.type === 'pay' ? `-¥${tx.amount.toLocaleString()}` : `+¥${tx.amount.toLocaleString()}`);
+            const amtColor = tx.type === 'pay' ? '' : (isPt ? 'color:#e65100;' : 'color:#00c851;');
+            return `<div class="tx-item">
+                <div class="tx-icon ${tx.type === 'pay' ? 'pay-icon' : 'rcv-icon'}">${icon}</div>
+                <div class="tx-info">
+                    <div class="tx-store">${tx.store}</div>
+                    <div class="tx-date">${tx.date}</div>
+                </div>
+                <div class="tx-amount" style="${amtColor}">${amtStr}</div>
+            </div>`;
+        }).join('');
+    }
+
+    function executeManualPay() {
+        const amt = parseInt(document.getElementById("manual_amount").value);
+        const store = document.getElementById("manual_store").value || 'yuta商店';
+        if(!amt || amt <= 0) { alert('金額を入力'); return; }
+        if(balance < amt) { alert('残高不足'); return; }
+        balance -= amt; addTx('pay', store, amt);
+        closeFullPage('staff_screen');
+        showComplete('✅','決済完了', amt, store);
+    }
+    function executeManualCharge() {
+        const amt = parseInt(document.getElementById("manual_charge").value);
+        if(!amt || amt <= 0) { alert('金額を入力'); return; }
+        balance += amt; addTx('rcv','管理チャージ', amt);
+        closeFullPage('staff_screen');
+        showComplete('💰','チャージ完了', amt, '管理入金');
+    }
+
+    function updateStaffPointsDisplay() {
+        const el = document.getElementById('staff-points-display');
+        if(el) el.textContent = points.toLocaleString();
+    }
+
+    function staffPointAdd() {
+        const amt = parseInt(document.getElementById("manual_points").value);
+        if(!amt || amt <= 0) { alert('ポイント数を入力してください'); return; }
+        points += amt;
+        autoConvertPoints();
+        updateStaffPointsDisplay();
+        document.getElementById("manual_points").value = '';
+        alert(`${amt}pt を付与しました（合計: ${points}pt）`);
+    }
+
+    function staffPointRemove() {
+        const amt = parseInt(document.getElementById("manual_points").value);
+        if(!amt || amt <= 0) { alert('ポイント数を入力してください'); return; }
+        if(points < amt) { alert(`ポイントが不足しています（現在: ${points}pt）`); return; }
+        points -= amt;
+        refreshDisplay();
+        updateStaffPointsDisplay();
+        document.getElementById("manual_points").value = '';
+        alert(`${amt}pt を減算しました（残り: ${points}pt）`);
+    }
+
+
+    // ===== おトク =====
+    function renderOtokuList() {
+        const el = document.getElementById('otoku-list');
+        if(!el) return;
+        const condLabel = { null: null, purchase2000: '¥2,000以上の購入履歴が必要' };
+        const condMet = { null: true, purchase2000: hasPurchaseOver2000() };
+        const list = Object.entries(COUPON_DEFS).map(([code, def]) => {
+            const used = usedCoupons.has(code);
+            const met = condMet[def.condition];
+            const condText = condLabel[def.condition];
+            const statusColor = used ? '#bbb' : (met ? '#00c851' : '#ff9800');
+            const statusText = used ? '✅ 使用済み' : (met ? '✅ 使用可能' : '⚠️ 条件未達成');
+            return `<div style="background:white;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.07);border:1px solid ${used ? '#eee' : '#f5f5f5'};opacity:${used ? '0.6' : '1'};">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                    <div>
+                        <div style="font-size:15px;font-weight:900;margin-bottom:2px;">${def.label}</div>
+                        <div style="font-size:12px;font-weight:800;color:#e65100;background:#fff8ee;display:inline-block;padding:2px 8px;border-radius:20px;">⭐ ${def.pts}pt</div>
+                    </div>
+                    <div style="font-size:11px;font-weight:800;color:${statusColor};text-align:right;white-space:nowrap;">${statusText}</div>
+                </div>
+                <div style="font-size:11px;color:#888;margin-bottom:4px;">コード: <span style="font-family:monospace;font-weight:700;color:#333;background:#f5f5f5;padding:2px 6px;border-radius:6px;">${code}</span></div>
+                ${condText ? `<div style="font-size:11px;color:#ff9800;margin-top:4px;">🔒 条件: ${condText}</div>` : ''}
+                ${!used && met ? `<button onclick="applyOtokuCoupon('${code}')" style="margin-top:10px;width:100%;background:var(--pp-red);color:white;border:none;border-radius:30px;padding:10px;font-size:13px;font-weight:900;cursor:pointer;">このクーポンを使う</button>` : ''}
+            </div>`;
+        }).join('');
+        el.innerHTML = list;
+    }
+
+    function applyOtokuCoupon(code) {
+        document.getElementById('coupon_code') && (document.getElementById('coupon_code').value = code);
+        const def = COUPON_DEFS[code];
+        if(!def) return;
+        if(usedCoupons.has(code)) { alert('このクーポンはすでに使用済みです'); return; }
+        if(def.condition === 'purchase2000' && !hasPurchaseOver2000()) {
+            alert('このクーポンは2,000円以上の購入履歴がある方のみ使えます');
+            return;
+        }
+        usedCoupons.add(code);
+        points += def.pts;
+        addTx('rcv', def.label, def.pts, 'pt');
+        autoConvertPoints();
+        renderOtokuList();
+        closeFullPage('otoku_screen');
+        showComplete('🎫', 'クーポン適用完了', def.pts, def.label + ' (ポイント付与)');
+    }
+
+    // ===== レシート =====
+    function renderReceiptList() {
+        const el = document.getElementById('receipt-list');
+        if(!el) return;
+        const pays = txHistory.filter(tx => tx.type === 'pay' && tx.unit === '¥'
+            && !tx.store.includes('ポイント') && !tx.store.includes('チャージ取消'));
+        const charges = txHistory.filter(tx => tx.type === 'rcv' && tx.unit === '¥'
+            && tx.store.includes('チャージ'));
+        const totalChargeCount = charges.length;
+        const totalPayCount = pays.length;
+        // ポイント変換分の合計円
+        const totalPointsConverted = pointHistory.reduce((s, h) => s + h.yen, 0);
+        const today = new Date().toLocaleDateString('ja-JP');
+
+        if(pays.length === 0 && charges.length === 0) {
+            el.innerHTML = '<div style="text-align:center;color:var(--pp-sub);padding:40px 0;font-size:14px;">購入履歴がありません</div>';
+            return;
+        }
+
+        // レシート紙風HTML
+        el.innerHTML = `
+        <div style="
+            background: white;
+            max-width: 320px;
+            margin: 0 auto;
+            font-family: 'Courier New', Courier, monospace;
+            border: 1px solid #ddd;
+            box-shadow: 2px 4px 16px rgba(0,0,0,0.10);
+            border-radius: 4px 4px 0 0;
+            overflow: hidden;
+            position: relative;
+        ">
+            <!-- 上部ギザギザ -->
+            <div style="height:12px;background:repeating-linear-gradient(90deg,white 0px,white 6px,#f0f0f0 6px,#f0f0f0 8px);border-bottom:1px dashed #ccc;"></div>
+
+            <!-- ヘッダー -->
+            <div style="padding:20px 24px 8px;text-align:center;">
+                <div style="font-size:30px;font-weight:900;letter-spacing:-1px;margin-bottom:4px;font-family:-apple-system,sans-serif;">ユーペイ合計</div>
+                <div style="font-size:12px;color:#555;margin-bottom:4px;">YUTAPAYスマレシ　発行日 ${today}</div>
+            </div>
+
+            <div style="border-top:2px solid #222;border-bottom:2px solid #222;margin:0 16px 16px;"></div>
+
+            <!-- 支払い明細 -->
+            <div style="padding:0 24px;font-size:14px;line-height:2;">
+                ${pays.length > 0 ? pays.map(tx =>
+                    `<div style="display:flex;justify-content:space-between;align-items:baseline;">
+                        <span>${tx.amount.toLocaleString()}円　支払い</span>
+                        <span style="font-size:12px;color:#555;">${tx.store}さん</span>
+                    </div>`
+                ).join('') : '<div style="color:#aaa;font-size:12px;text-align:center;padding:8px 0;">支払い履歴なし</div>'}
+            </div>
+
+            <!-- 区切り -->
+            <div style="border-top:1px dashed #bbb;margin:12px 16px;"></div>
+
+            <!-- 集計 -->
+            <div style="padding:0 24px 8px;font-size:14px;line-height:2.2;">
+                <div>合計チャージ回数　${totalChargeCount}回</div>
+                <div>合計支払い回数　${totalPayCount}回</div>
+                <div>現在残高　${balance.toLocaleString()}円</div>
+                <div>ポイント　${points}pt</div>
+                <div>ポイント合計残高　${totalPointsConverted.toLocaleString()}円</div>
+            </div>
+
+            <!-- 区切り -->
+            <div style="border-top:2px solid #222;border-bottom:2px solid #222;margin:0 16px 20px;"></div>
+
+            <!-- フッター -->
+            <div style="text-align:right;padding:0 24px 24px;font-size:14px;font-weight:700;font-family:-apple-system,sans-serif;">
+                Yumazon株式会社
+            </div>
+
+            <!-- 下部ギザギザ -->
+            <div style="height:12px;background:repeating-linear-gradient(90deg,white 0px,white 6px,#f0f0f0 6px,#f0f0f0 8px);border-top:1px dashed #ccc;"></div>
+        </div>`;
+    }
+
+    function yumazonLogin() {
+        const d = document.getElementById('yumazon_dialog');
+        d.style.display = 'flex';
+    }
+    function closeYumazonDialog() {
+        document.getElementById('yumazon_dialog').style.display = 'none';
+    }
+    function openYumazonLine() {
+        closeYumazonDialog();
+        window.open('https://line.me/ti/g2/dG1eD7Bm3k-bPlvMDe4Bc0_6HFGTS7QiCKdINw?utm_source=invitation&utm_medium=link_copy&utm_campaign=default', '_blank');
+    }
+
+    function purchasePickup(item, price) {
+        if(price === 0) {
+            alert('Yumazon宅配は現在準備中です');
+            return;
+        }
+        if(balance < price) {
+            alert(`残高が不足しています\n必要: ¥${price.toLocaleString()}\n残高: ¥${balance.toLocaleString()}`);
+            return;
+        }
+        if(confirm(`${item}\n¥${price.toLocaleString()}で購入しますか？`)) {
+            balance -= price;
+            addTx('pay', item, price);
+            closeFullPage('pickup_screen');
+            showComplete('🛍️', '購入完了！', price, item);
+        }
+    }
+
+
+    // ===== 通知システム =====
+    let notifications = [];
+    let notifIdCounter = 0;
+
+    function addNotif(type, title, body) {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'});
+        notifications.unshift({ id: notifIdCounter++, type, title, body, time: timeStr, read: false });
+        updateNotifBadge();
+        renderNotifList();
+        // プッシュ風トースト
+        showToast(type, title, body);
+    }
+
+    function updateNotifBadge() {
+        const unread = notifications.filter(n => !n.read).length;
+        const dot = document.getElementById('notif-dot');
+        const count = document.getElementById('notif-count');
+        if(dot) dot.style.display = unread > 0 ? 'block' : 'none';
+        if(count) {
+            if(unread > 0) { count.style.display = 'flex'; count.textContent = unread > 99 ? '99+' : unread; }
+            else { count.style.display = 'none'; }
+        }
+    }
+
+    function openNotifPanel() {
+        goFullPage('notif_screen');
+    }
+
+    function clearAllNotifs() {
+        notifications = [];
+        updateNotifBadge();
+        renderNotifList();
+    }
+
+    function renderNotifList() {
+        const el = document.getElementById('notif-list');
+        if(!el) return;
+        if(notifications.length === 0) {
+            el.innerHTML = '<div style="text-align:center;color:#bbb;padding:60px 0;font-size:14px;">🔕 通知はありません</div>';
+            return;
+        }
+        const iconMap = { pay: '💳', rcv: '💰', info: '🉐', pt: '⭐', coupon: '🎫', charge: '⚡' };
+        el.innerHTML = notifications.map(n => {
+            const icon = iconMap[n.type] || '🔔';
+            const bgClass = n.type==='pay' ? 'pay' : (n.type==='rcv'||n.type==='charge') ? 'rcv' : 'info';
+            return `<div class="notif-item" id="notif-${n.id}" data-id="${n.id}" style="
+                background:white;border-radius:14px;padding:14px 16px;margin-bottom:8px;
+                display:flex;gap:12px;align-items:flex-start;
+                box-shadow:0 1px 4px rgba(0,0,0,0.07);
+                position:relative;overflow:hidden;
+                transition:transform 0.25s ease,opacity 0.25s ease,max-height 0.3s,margin 0.3s,padding 0.3s;
+                touch-action:pan-y;
+            ">
+                <div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:${bgClass==='pay'?'#fff0f0':bgClass==='rcv'?'#f0fff4':'#fff8ee'};">${icon}</div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:13px;font-weight:800;margin-bottom:3px;">${n.title}</div>
+                    <div style="font-size:12px;color:#666;line-height:1.4;">${n.body}</div>
+                    <div style="font-size:10px;color:#bbb;margin-top:4px;">${n.time}</div>
+                </div>
+                ${!n.read ? '<div style="position:absolute;top:14px;right:14px;width:7px;height:7px;background:var(--pp-red);border-radius:50%;"></div>' : ''}
+            </div>`;
+        }).join('');
+        el.querySelectorAll('.notif-item').forEach(item => setupSwipeDismiss(item));
+    }
+
+    function setupSwipeDismiss(el) {
+        let startX = 0, curX = 0, swiping = false;
+        el.addEventListener('touchstart', e => {
+            startX = e.touches[0].clientX;
+            swiping = true;
+            el.classList.add('swiping');
+        }, {passive: true});
+        el.addEventListener('touchmove', e => {
+            if(!swiping) return;
+            curX = e.touches[0].clientX - startX;
+            if(Math.abs(curX) > 10) {
+                el.style.transform = `translateX(${curX}px)`;
+                el.style.opacity = Math.max(0, 1 - Math.abs(curX) / 200);
+            }
+        }, {passive: true});
+        el.addEventListener('touchend', () => {
+            swiping = false;
+            el.classList.remove('swiping');
+            if(Math.abs(curX) > 80) {
+                const id = parseInt(el.dataset.id);
+                el.classList.add('dismissed');
+                setTimeout(() => {
+                    notifications = notifications.filter(n => n.id !== id);
+                    updateNotifBadge();
+                    renderNotifList();
+                }, 300);
+            } else {
+                el.style.transform = '';
+                el.style.opacity = '';
+            }
+            curX = 0;
+        });
+    }
+
+    // トースト（画面上部に一瞬出る）
+    function dismissToast(toastEl) {
+        toastEl.style.transform = 'translateX(-50%) translateY(-120%)';
+        setTimeout(() => toastEl.remove(), 400);
+    }
+
+    function showToast(type, title, body) {
+        const existing = document.getElementById('notif-toast');
+        if(existing) dismissToast(existing);
+        const toast = document.createElement('div');
+        toast.id = 'notif-toast';
+        const iconMap = { pay: '💳', rcv: '💰', info: '🉐', pt: '⭐', coupon: '🎫', charge: '⚡' };
+        toast.style.cssText = `
+            position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-120%);
+            width:calc(100% - 28px);max-width:400px;
+            background:white;border-radius:16px;padding:12px 16px;
+            display:flex;align-items:center;gap:12px;
+            box-shadow:0 4px 20px rgba(0,0,0,0.18);
+            z-index:9999;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        `;
+        toast.innerHTML = `
+            <div style="font-size:22px;flex-shrink:0;">${iconMap[type] || '🔔'}</div>
+            <div style="flex:1;cursor:pointer;" id="toast-body">
+                <div style="font-size:12px;font-weight:800;margin-bottom:2px;">${title}</div>
+                <div style="font-size:11px;color:#666;">${body}</div>
+            </div>
+            <div style="font-size:20px;color:#ccc;padding:4px 6px;cursor:pointer;flex-shrink:0;" id="toast-close">✕</div>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.style.transform = 'translateX(-50%) translateY(0)', 10);
+
+        // 自動消去タイマー（通知は消えない、トーストだけ）
+        const autoTimer = setTimeout(() => dismissToast(toast), 4000);
+
+        // ❌ → トーストだけ消す（通知はパネルに残る）
+        toast.querySelector('#toast-close').addEventListener('click', (e) => {
+            e.stopPropagation();
+            clearTimeout(autoTimer);
+            dismissToast(toast);
+        });
+
+        // 本体タップ → 通知パネルを開く
+        toast.querySelector('#toast-body').addEventListener('click', () => {
+            clearTimeout(autoTimer);
+            dismissToast(toast);
+            openNotifPanel();
+        });
+    }
+
+    // 初期おトク通知
+    setTimeout(() => {
+        addNotif('info', '🉐 超ユーペイ祭 開催中！', '対象店舗で最大20%ポイント付与。クーポンもお見逃しなく！');
+    }, 1000);
+    setTimeout(() => {
+        addNotif('coupon', '🎫 クーポンが使えます', 'おトク画面からコードを入力してポイントをゲット！');
+    }, 2500);
+
+
+    // ===== アカウント =====
+    function renderAccountScreen() {
+        const el = document.getElementById('account-body');
+        if(!el) return;
+        if(!currentUser) {
+            // 未ログイン: 登録フォーム
+            el.innerHTML = `
+                <div style="max-width:360px;margin:0 auto;">
+                    <div style="text-align:center;margin-bottom:28px;">
+                        <div style="width:80px;height:80px;background:linear-gradient(135deg,#ff0033,#ff4466);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 4px 16px rgba(255,0,51,0.3);">
+                            <span style="font-size:36px;color:white;font-weight:900;">Y</span>
+                        </div>
+                        <div style="font-size:18px;font-weight:900;">yutashoppay</div>
+                        <div style="font-size:12px;color:#888;margin-top:4px;">アカウントに登録・ログイン</div>
+                    </div>
+                    <div style="background:white;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.07);">
+                        <div style="margin-bottom:16px;">
+                            <div style="font-size:12px;font-weight:700;color:#555;margin-bottom:6px;">メールアドレス</div>
+                            <input id="acc-email" type="email" placeholder="example@email.com" style="width:100%;padding:13px 14px;border:1.5px solid #e0e0e0;border-radius:12px;font-size:14px;outline:none;box-sizing:border-box;">
+                        </div>
+                        <div style="margin-bottom:24px;">
+                            <div style="font-size:12px;font-weight:700;color:#555;margin-bottom:6px;">パスワード</div>
+                            <input id="acc-password" type="password" placeholder="6文字以上" style="width:100%;padding:13px 14px;border:1.5px solid #e0e0e0;border-radius:12px;font-size:14px;outline:none;box-sizing:border-box;">
+                        </div>
+                        <button onclick="accountRegister()" style="width:100%;background:linear-gradient(90deg,#ff0033,#ff4466);color:white;border:none;border-radius:50px;padding:15px;font-size:15px;font-weight:900;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 14px rgba(255,0,51,0.35);">新規登録</button>
+                        <button onclick="accountLogin()" style="width:100%;background:white;color:#ff0033;border:2px solid #ff0033;border-radius:50px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;">ログイン</button>
+                    </div>
+                </div>`;
+        } else {
+            // ログイン済み
+            el.innerHTML = `
+                <div style="max-width:360px;margin:0 auto;">
+                    <div style="text-align:center;margin-bottom:28px;">
+                        <div style="width:80px;height:80px;background:linear-gradient(135deg,#ff0033,#ff4466);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 4px 16px rgba(255,0,51,0.3);">
+                            <span style="font-size:36px;color:white;font-weight:900;">Y</span>
+                        </div>
+                        <div style="font-size:18px;font-weight:900;">${currentUser.email}</div>
+                        <div style="font-size:12px;color:#00c853;font-weight:700;margin-top:4px;">✅ ログイン中</div>
+                    </div>
+                    <div style="background:white;border-radius:20px;padding:8px;box-shadow:0 2px 12px rgba(0,0,0,0.07);margin-bottom:16px;">
+                        <div onclick="accountLogin()" style="display:flex;align-items:center;gap:14px;padding:16px;cursor:pointer;border-bottom:1px solid #f5f5f5;">
+                            <span style="font-size:22px;">🔑</span>
+                            <span style="font-size:15px;font-weight:700;">再ログイン</span>
+                            <span style="margin-left:auto;color:#ccc;">›</span>
+                        </div>
+                        <div onclick="accountNewRegister()" style="display:flex;align-items:center;gap:14px;padding:16px;cursor:pointer;border-bottom:1px solid #f5f5f5;">
+                            <span style="font-size:22px;">➕</span>
+                            <span style="font-size:15px;font-weight:700;">新規登録</span>
+                            <span style="margin-left:auto;color:#ccc;">›</span>
+                        </div>
+                        <div onclick="accountLogout()" style="display:flex;align-items:center;gap:14px;padding:16px;cursor:pointer;border-bottom:1px solid #f5f5f5;">
+                            <span style="font-size:22px;">🚪</span>
+                            <span style="font-size:15px;font-weight:700;color:#ff6600;">ログアウト</span>
+                            <span style="margin-left:auto;color:#ccc;">›</span>
+                        </div>
+                        <div onclick="accountDelete()" style="display:flex;align-items:center;gap:14px;padding:16px;cursor:pointer;">
+                            <span style="font-size:22px;">⚠️</span>
+                            <span style="font-size:15px;font-weight:700;color:#ff0033;">退会する</span>
+                            <span style="margin-left:auto;color:#ccc;">›</span>
+                        </div>
+                    </div>
+                </div>`;
+        }
+    }
+
+    function accountRegister() {
+        const email = document.getElementById('acc-email').value.trim();
+        const pass = document.getElementById('acc-password').value;
+        if(!email || !email.includes('@')) { alert('正しいメールアドレスを入力してください'); return; }
+        if(pass.length < 6) { alert('パスワードは6文字以上にしてください'); return; }
+        currentUser = { email, password: pass };
+        saveData();
+        renderAccountScreen();
+        addNotif('info', '✅ 登録完了', `${email} で登録されました`);
+    }
+
+    function accountLogin() {
+        const email = prompt('メールアドレスを入力');
+        if(!email) return;
+        const pass = prompt('パスワードを入力');
+        if(!pass) return;
+        if(currentUser && currentUser.email === email && currentUser.password === pass) {
+            addNotif('info', '✅ ログイン完了', `${email} でログインしました`);
+            renderAccountScreen();
+        } else if(!currentUser) {
+            alert('アカウントが見つかりません。新規登録してください');
+        } else {
+            alert('メールアドレスまたはパスワードが違います');
+        }
+    }
+
+    function accountNewRegister() {
+        if(confirm('新しいアカウントを登録すると現在のアカウントが上書きされます。よろしいですか？')) {
+            currentUser = null;
+            saveData();
+            renderAccountScreen();
+        }
+    }
+
+    function accountLogout() {
+        if(confirm('ログアウトしますか？')) {
+            currentUser = null;
+            saveData();
+            renderAccountScreen();
+            addNotif('info', '🚪 ログアウト', 'ログアウトしました');
+        }
+    }
+
+    function accountDelete() {
+        if(confirm('退会するとすべてのデータが削除されます。本当によろしいですか？')) {
+            if(confirm('本当に退会しますか？この操作は取り消せません。')) {
+                localStorage.clear();
+                balance = 10000; points = 0; pointHistory = []; usedCoupons = new Set();
+                txHistory = []; currentUser = null; notifications = [];
+                refreshDisplay(); renderAccountScreen();
+                addNotif('info', '退会完了', 'アカウントが削除されました');
+            }
+        }
+    }
+
+    loadData();
+    updateBalance();
+    renderReceiptList();
+    renderTxList();
+</script>
+</body>
+</html>
